@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.bzeuzal.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -21,16 +21,50 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     const roommatesCollection = client.db("RoommateDB").collection("roommates");
+    const usersCollection = client.db("RoommateDB").collection("users");
 
+    // app.get("/roommates", async (req, res) => {
+    //   const result = await roommatesCollection.find().toArray();
+    //   res.send(result);
+    // });
+
+    // Home page (only 6 available)
     app.get("/roommates", async (req, res) => {
+      const result = await roommatesCollection
+        .find({ availability: "yes" })
+        .limit(6)
+        .toArray();
+      res.send(result);
+    });
+
+    // All available roommates
+    app.get("/roommates/browse-listing", async (req, res) => {
       const result = await roommatesCollection.find().toArray();
       res.send(result);
     });
 
+    //Insert or Add Roommates
     app.post("/roommates", async (req, res) => {
       const newRoommate = req.body;
       console.log(newRoommate);
       const result = await roommatesCollection.insertOne(newRoommate);
+      res.send(result);
+    });
+
+    //Detail of Single Roommates
+    app.get("/roommates/browse-listing/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await roommatesCollection.findOne(query);
+
+      res.send(result);
+    });
+
+    //User related API Information
+    app.post("/users", async (req, res) => {
+      const usersProfile = req.body;
+      console.log(usersProfile);
+      const result = await usersCollection.insertOne(usersProfile);
       res.send(result);
     });
 
