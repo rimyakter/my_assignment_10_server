@@ -30,11 +30,23 @@ async function run() {
 
     // Home page (only 6 available)
     app.get("/roommates", async (req, res) => {
-      const result = await roommatesCollection
-        .find({ availability: "yes" })
-        .limit(6)
-        .toArray();
-      res.send(result);
+      try {
+        const { email, limit } = req.query;
+
+        let query = {};
+        if (email) query.email = email; // filter by email if provided
+        if (!email) query.availability = "yes"; // default for home page
+
+        let cursor = roommatesCollection.find(query);
+
+        if (limit) cursor = cursor.limit(parseInt(limit));
+
+        const roommates = await cursor.toArray();
+        res.send(roommates);
+      } catch (err) {
+        console.error(err);
+        res.status(500).send({ error: "Server error" });
+      }
     });
 
     // All available roommates
