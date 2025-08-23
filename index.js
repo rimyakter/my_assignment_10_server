@@ -49,6 +49,19 @@ async function run() {
       }
     });
 
+    // Delete roommate by ID
+    app.delete("/roommates/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await roommatesCollection.deleteOne(query);
+
+        res.send(result); // contains deletedCount
+      } catch (error) {
+        res.status(500).send({ message: "Error deleting roommate", error });
+      }
+    });
+
     // All available roommates
     app.get("/roommates/browse-listing", async (req, res) => {
       const result = await roommatesCollection.find().toArray();
@@ -69,6 +82,39 @@ async function run() {
       const query = { _id: new ObjectId(id) };
       const result = await roommatesCollection.findOne(query);
 
+      res.send(result);
+    });
+
+    // Get single roommate by ID (for Update form)
+    app.get("/roommates/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        if (!ObjectId.isValid(id)) {
+          return res.status(400).send({ message: "Invalid ID" });
+        }
+
+        const query = { _id: new ObjectId(id) };
+        const roommate = await roommatesCollection.findOne(query);
+
+        if (!roommate) {
+          return res.status(404).send({ message: "Roommate not found" });
+        }
+
+        res.send(roommate);
+      } catch (err) {
+        res
+          .status(500)
+          .send({ message: "Error fetching roommate", error: err });
+      }
+    });
+
+    // ✅ Update by ID
+    app.put("/roommates/:id", async (req, res) => {
+      const id = req.params.id;
+      const updatedData = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = { $set: updatedData };
+      const result = await roommatesCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
 
