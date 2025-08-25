@@ -48,7 +48,6 @@ async function run() {
         const roommates = await cursor.toArray();
         res.send(roommates);
       } catch (err) {
-        console.error(err);
         res.status(500).send({ error: "Server error" });
       }
     });
@@ -75,7 +74,7 @@ async function run() {
     //Insert or Add Roommates
     app.post("/roommates", async (req, res) => {
       const newRoommate = req.body;
-      console.log(newRoommate);
+
       const result = await roommatesCollection.insertOne(newRoommate);
       res.send(result);
     });
@@ -130,7 +129,7 @@ async function run() {
 
     app.post("/users", async (req, res) => {
       const usersProfile = req.body;
-      console.log(usersProfile);
+
       const result = await usersCollection.insertOne(usersProfile);
       res.send(result);
     });
@@ -163,9 +162,6 @@ async function run() {
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
