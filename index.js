@@ -157,7 +157,7 @@ async function run() {
 
         res.send({ success: true, result });
       } catch (error) {
-        res.status(500).send({ error: "Failed to like post" });
+        res.status(500).send({ error: "Failed to like post and increment" });
       }
     });
 
