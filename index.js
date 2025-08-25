@@ -32,7 +32,7 @@ async function run() {
     //   res.send(result);
     // });
 
-    // Home page (only 6 available)
+    // Home page (only 6 limited post will appear)
     app.get("/roommates", async (req, res) => {
       try {
         const { email, limit } = req.query;
