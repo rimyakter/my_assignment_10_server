@@ -5,6 +5,10 @@ require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
 
+//middleware
+app.use(cors());
+app.use(express.json());
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.bzeuzal.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -138,6 +142,25 @@ async function run() {
       res.send(result);
     });
 
+    //Like button API
+
+    // PATCH /posts/:id/like
+    app.patch("/roommates/:id/like", async (req, res) => {
+      const { id } = req.params;
+      const { userEmail } = req.body;
+
+      try {
+        const result = await roommatesCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $inc: { likes: 1 } } // creates `likes` if not exist
+        );
+
+        res.send({ success: true, result });
+      } catch (error) {
+        res.status(500).send({ error: "Failed to like post" });
+      }
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
@@ -148,11 +171,8 @@ async function run() {
     // await client.close();
   }
 }
-run().catch(console.dir);
 
-//middleware
-app.use(cors());
-app.use(express.json());
+run().catch(console.dir);
 
 app.get("/", (req, res) => {
   res.send("Welcome to assignment 10");
